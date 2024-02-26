@@ -3,8 +3,13 @@ package com.example.test
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
+import android.widget.RelativeLayout
 import android.widget.TextView
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
 import java.util.*
 import kotlin.math.abs
 
@@ -13,13 +18,31 @@ class MainActivity : AppCompatActivity() {
     var p_num = 3
     var k = 1
     var point_list = mutableListOf<Float>()
+    var isBlind = false
 
     fun start() {
         setContentView(R.layout.activity_start)
+
+        MobileAds.initialize(this) {}
+        val adview3:AdView = findViewById(R.id.adView3)
+        val adRequest = AdRequest.Builder().build()
+        adview3.loadAd(adRequest)
+
+
         val tv_people_num: TextView= findViewById(R.id.people_num)
         val btn_minus: Button= findViewById(R.id.minus)
         val btn_plus: Button=findViewById(R.id.plus)
         val btn_start: Button=findViewById(R.id.btn_start)
+        val btn_blind: Button=findViewById(R.id.btn_blind)
+
+        btn_blind.setOnClickListener{
+            isBlind =!isBlind
+            if (isBlind ==true){
+                btn_blind.text="Blind 모드 ON"
+            } else{
+                btn_blind.text="Blind 모드 OFF"
+            }
+        }
         tv_people_num.text=p_num.toString()
         btn_minus.setOnClickListener {
             p_num--
@@ -42,6 +65,11 @@ class MainActivity : AppCompatActivity() {
     fun main(){
         setContentView(R.layout.activity_main)
 
+        MobileAds.initialize(this) {}
+        val adview2:AdView = findViewById(R.id.adView2)
+        val adRequest = AdRequest.Builder().build()
+        adview2.loadAd(adRequest)
+
         var timerTask: Timer? =null
         var stage = 1
         var sec : Int = 0
@@ -50,6 +78,7 @@ class MainActivity : AppCompatActivity() {
         val btn: Button=findViewById(R.id.button)
         val tv3: TextView= findViewById(R.id.point)
         val tv4: TextView= findViewById(R.id.people)
+        val btn_exit: Button=findViewById(R.id.btn_exit)
 
 
         val random_box1= Random()
@@ -58,6 +87,11 @@ class MainActivity : AppCompatActivity() {
         btn.text="시작"
         tv4.text= "참가자 $k"
 
+        btn_exit.setOnClickListener {
+            point_list.clear()
+            k=1
+            start()
+        }
 
         btn.setOnClickListener {
             stage++
@@ -65,12 +99,17 @@ class MainActivity : AppCompatActivity() {
                 timerTask= kotlin.concurrent.timer(period = 10) {
                     sec++
                     runOnUiThread {
-                        tv2.text = (sec.toFloat()/100).toString()
+                        if(isBlind == false) {
+                            tv2.text = (sec.toFloat() / 100).toString()
+                        } else if (isBlind == true && stage ==2){
+                            tv2.text="???"
+                        }
                     }
                 }
                 btn.text="정지"
             }
             else if(stage==3) {
+                tv2.text = (sec.toFloat() / 100).toString()
                 timerTask?.cancel()
                 val point=abs(sec-num).toFloat()/100
                 point_list.add(point)
@@ -94,6 +133,12 @@ class MainActivity : AppCompatActivity() {
 
     fun end() {
         setContentView(R.layout.activity_end)
+
+        MobileAds.initialize(this) {}
+        val adview:AdView = findViewById(R.id.adView)
+        val adRequest = AdRequest.Builder().build()
+        adview.loadAd(adRequest)
+
         val tv_people_result: TextView= findViewById(R.id.people_result)
         val tv_point_result: TextView= findViewById(R.id.point_result)
         val btn_restart: Button= findViewById(R.id.btn_restart)
